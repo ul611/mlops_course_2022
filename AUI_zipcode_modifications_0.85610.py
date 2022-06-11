@@ -244,4 +244,4 @@ y_pred = model.predict(X_test_scaled)
 
 submission = pd.DataFrame(np.exp(y_pred), columns=['price']).reset_index()
 submission.columns = ['Id', 'price']
-submission.set_index('Id').to_csv(f'solution-{N}-Uliana_Bykova.csv')
+submission.set_index('Id').to_csv(f'solution-{N}-Uliana.csv')
