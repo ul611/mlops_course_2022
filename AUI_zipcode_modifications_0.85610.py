@@ -205,21 +205,25 @@ X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
 
 
 # #### Поиск лучших параметров
-# поиск лучших параметров для регрессии
 
-grid_search_lasso = GridSearchCV(Lasso(), {'max_iter': range(10, 150, 10), 'alpha': np.logspace(-9, -5), 'random_state':[RANDOM_STATE]}, scoring='r2')
-grid_search_lasso.fit(X_train_scaled, y_train)
 
-# поиск лучших параметров для knn
+def find_best_params(X_train_scaled, y_train):
+    # поиск лучших параметров для регрессии
+    grid_search_lasso = GridSearchCV(Lasso(), {'max_iter': range(10, 150, 10), 'alpha': np.logspace(-9, -5), 'random_state':[RANDOM_STATE]}, scoring='r2')
+    grid_search_lasso.fit(X_train_scaled, y_train)
 
-grid_search_knn = GridSearchCV(KNeighborsRegressor(), 
-                           {'metric': ['cosine', 'euclidean', 'manhattan', 'chebyshev', 
-                                       'hamming', 'canberra', 'braycurtis'], 
-                            'weights': ['distance'], 
-                            'n_neighbors': range(3, 8)}, scoring='r2')
-grid_search_knn.fit(X_train_scaled, y_train)
+    # поиск лучших параметров для knn
+    grid_search_knn = GridSearchCV(KNeighborsRegressor(),
+                               {'metric': ['cosine', 'euclidean', 'manhattan', 'chebyshev',
+                                           'hamming', 'canberra', 'braycurtis'],
+                                'weights': ['distance'],
+                                'n_neighbors': range(3, 8)}, scoring='r2')
+    grid_search_knn.fit(X_train_scaled, y_train)
+    return grid_search_lasso, grid_search_knn
  
 # get a stacking ensemble of models
+
+grid_search_lasso, grid_search_knn = find_best_params(X_train_scaled, y_train)
 def get_stacking():
     # define the base models
     level0 = list()
