@@ -3,13 +3,6 @@
 
 # R2 score is used as metric.
 # Предсказание цены дома в США (без использования деревьев и DL)
-
-CORR_THRES = 0.8
-N = 4
-FOLDER = "./data/"
-RANDOM_STATE = 42
-SCROLL_PAUSE_TIME = 1
-
 from collections import Counter
 import itertools
 import json
@@ -31,6 +24,12 @@ from sklearn.model_selection import (
 )
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
+
+CORR_THRES = 0.8
+N = 4
+FOLDER = "./data/"
+RANDOM_STATE = 42
+SCROLL_PAUSE_TIME = 1
 
 # #### Импортируем исходные данные
 
