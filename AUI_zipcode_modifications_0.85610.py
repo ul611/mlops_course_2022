@@ -307,7 +307,7 @@ def get_stacking():
 
 
 model = get_stacking()
-# fit the model on all available data
+# fit the model
 model.fit(X_train_scaled, y_train)
 # make a prediction
 y_pred = model.predict(X_test_scaled)
