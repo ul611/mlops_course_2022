@@ -255,6 +255,7 @@ X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
 
 
 def find_best_params(X_train_scaled, y_train):
+
     # поиск лучших параметров для регрессии
     grid_search_lasso = GridSearchCV(
         Lasso(),
