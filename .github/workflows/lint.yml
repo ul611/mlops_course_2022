@@ -1,8 +1,7 @@
 name: Lint
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
+  # Trigger the workflow on push or pull request
   push:
     branches:
       - '**'
@@ -36,4 +35,5 @@ jobs:
         with:
           black: true
           flake8: true
+          flake8_args: "--max-line-length 88"
           # mypy: true
