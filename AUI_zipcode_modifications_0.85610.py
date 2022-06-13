@@ -79,7 +79,7 @@ data.date = (data.date - min_data).apply(lambda x: x.days)
 # ### Категориальная переменная zipcode
 # Собираем общую информацию по каждому zipcode
 
-d_zipcodes_info : Dict[int, Dict] = {}
+d_zipcodes_info = {}
 info_fields = [
     "Population",
     "Population Density",
