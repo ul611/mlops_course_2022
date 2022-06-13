@@ -7,6 +7,7 @@ from collections import Counter
 import itertools
 import json
 import time
+from typing import Dict
 from tqdm import tqdm
 
 import numpy as np
@@ -37,14 +38,15 @@ X_test = pd.read_csv(f"{FOLDER}x_test.csv")
 y_train = pd.read_csv(f"{FOLDER}y_train.csv")
 
 
-# Преобразуем в логарифм. Далее будем предсказывать логарифм цены, и затем потенцируем предсказание
+# Преобразуем в логарифм. Далее будем предсказывать логарифм цены,
+# и затем потенцируем предсказание
 
 y_train_log = np.log(y_train)
 
 # #### Соберем все данные в один датасет
 # убираем явный выброс по критерию bedrooms == 33, при этом площадь всего 1620 sqft
 
-X_train.query("bedrooms > 30")
+X_train.query("bedrooms == 33")
 
 
 X_train["dataset"] = "train"
@@ -77,7 +79,7 @@ data.date = (data.date - min_data).apply(lambda x: x.days)
 # ### Категориальная переменная zipcode
 # Собираем общую информацию по каждому zipcode
 
-d_zipcodes_info = {}
+d_zipcodes_info : Dict[int, Dict] = {}
 info_fields = [
     "Population",
     "Population Density",
@@ -158,7 +160,7 @@ data.to_csv("data_all.csv", index=False)
 
 X_train = data.query("~price.isna()").drop(
     [
-        #'lat', 'long', 'zipcode',
+        # 'lat', 'long', 'zipcode',
         "dataset",
         "price",
         "combined",
@@ -167,7 +169,7 @@ X_train = data.query("~price.isna()").drop(
 )
 X_test = data.query("price.isna()").drop(
     [
-        #'lat', 'long', 'zipcode',
+        # 'lat', 'long', 'zipcode',
         "dataset",
         "price",
         "combined",
@@ -181,7 +183,7 @@ y_train = data.query("~price.isna()")[["price"]]
 
 cat_features = [
     "zipcode",
-    #'view_bool', 'sqft_basement_bool', 'waterfront', 'yr_renovated_bool'
+    # 'view_bool', 'sqft_basement_bool', 'waterfront', 'yr_renovated_bool'
 ]
 
 for col in cat_features:
@@ -210,8 +212,8 @@ correlated_features = (
     .rename(columns={0: "corr_value"})
 )
 
-# уберем из тех пар, у которых корреляция > corr те признаки, которые чаще других встречаются в парах
-# коррелирующих признаков
+# уберем из тех пар, у которых корреляция > corr те признаки, которые чаще
+# других встречаются в парах коррелирующих признаков
 
 f_to_drop = []
 most_correlated_df = correlated_features.query("corr_value > @CORR_THRES").copy()
