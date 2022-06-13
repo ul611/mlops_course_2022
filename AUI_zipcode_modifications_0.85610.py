@@ -30,7 +30,7 @@ FOLDER = "./data/"
 RANDOM_STATE = 42
 SCROLL_PAUSE_TIME = 1
 
-# #### Импортируем исходные данные
+# ### Импортируем исходные данные
 
 X_train = pd.read_csv(f"{FOLDER}x_train.csv")
 X_test = pd.read_csv(f"{FOLDER}x_test.csv")
