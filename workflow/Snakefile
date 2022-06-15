@@ -1,0 +1,153 @@
+# configfile: "workflow/config.yaml"
+
+
+rule all:
+    input:
+        "reports/score.csv",
+        "reports/solution.csv",
+        "models/model",
+        "data/interim/lasso_best_params.json",
+        "data/interim/knn_best_params.json",
+        "data/processed/X_train.csv",
+        "data/processed/X_val.csv",
+        "data/processed/y_train.csv",
+        "data/processed/y_val.csv",
+        "data/interim/data_final_X.csv",
+        "data/processed/data_final_X_to_predict.csv",
+        "data/interim/data_processed_correlated_X.csv",
+        "data/interim/y.csv",
+        "data/interim/data_processed_correlated_X_to_predict.csv",
+        "data/interim/data_processed_categorical.csv",
+        "data/interim/data_with_external_features.csv",
+        "data/interim/data_added_features.csv",
+        "data/external/d_zipcodes_info.json",
+        "data/interim/data_all_processed.csv",
+        "data/interim/data_all.csv"
+
+rule evaluate_model:
+    input:
+        "data/processed/data_final_X_to_predict.csv",
+        "data/processed/X_val.csv",
+        "data/processed/y_val.csv",
+        "models/model"
+    output:
+        "reports/score.csv",
+        "reports/solution.csv"
+    shell:
+        "python -m src.models.evaluate_model {input} {output}"
+# (PATH_DATA_FINAL_X_TO_PREDICT, PATH_DATA_FINAL_X_VAL, PATH_DATA_FINAL_Y_VAL, PATH_MODEL, PATH_SCORE, PATH_SOLUTION)
+
+rule train_model:
+    input:
+        "data/processed/X_train.csv",
+        "data/processed/y_train.csv",
+        "data/interim/lasso_best_params.json",
+        "data/interim/knn_best_params.json"
+    output:
+        "models/model"
+    shell:
+        "python -m src.models.train_model {input} {output}"
+# (PATH_DATA_FINAL_X_TRAIN, PATH_DATA_FINAL_Y_TRAIN, PATH_BEST_PARAMS_LASSO, PATH_BEST_PARAMS_KNN, PATH_MODEL)
+
+rule find_best_model_parameters:
+    input:
+        "data/processed/X_train.csv",
+        "data/processed/y_train.csv"
+    output:
+        "data/interim/lasso_best_params.json",
+        "data/interim/knn_best_params.json"
+    shell:
+        "python -m src.models.find_best_model_parameters 42 {input} {output}"
+# (RANDOM_STATE, PATH_DATA_FINAL_X_TRAIN, PATH_DATA_FINAL_Y_TRAIN, PATH_BEST_PARAMS_LASSO, PATH_BEST_PARAMS_KNN)
+
+rule prepare_dataset:
+    input:
+        "data/interim/data_final_X.csv",
+        "data/interim/y.csv"
+    output:
+        "data/processed/X_train.csv",
+        "data/processed/X_val.csv",
+        "data/processed/y_train.csv",
+        "data/processed/y_val.csv"
+    shell:
+        "python -m src.models.prepare_dataset 42 {input} {output}"
+# (RANDOM_STATE, PATH_DATA_FINAL_X, PATH_DATA_Y, PATH_DATA_FINAL_X_TRAIN, PATH_DATA_FINAL_X_VAL, PATH_DATA_FINAL_Y_TRAIN, PATH_DATA_FINAL_Y_VAL)
+
+rule scale_features:
+    input:
+        "data/interim/data_processed_correlated_X.csv",
+        "data/interim/data_processed_correlated_X_to_predict.csv"
+    output:
+        "data/interim/data_final_X.csv",
+        "data/processed/data_final_X_to_predict.csv"
+    shell:
+        "python -m src.features.scale_features {input} {output}"
+# (PATH_DATA_ALL_CORR, PATH_DATA_ALL_CORR_TO_PREDICT, PATH_DATA_FINAL_X, PATH_DATA_FINAL_X_TO_PREDICT)
+
+rule process_correlated_features:
+    input:
+        "data/interim/data_processed_categorical.csv"
+    output:
+        "data/interim/data_processed_correlated_X.csv",
+        "data/interim/y.csv",
+        "data/interim/data_processed_correlated_X_to_predict.csv"
+    shell:
+        "python -m src.features.process_correlated_features 0.8 {input} {output}"
+# (CORR_THRES, PATH_DATA_ALL_CAT, PATH_DATA_ALL_CORR, PATH_DATA_Y, PATH_DATA_ALL_CORR_TO_PREDICT)
+
+rule process_categorical_features:
+    input:
+        "data/interim/data_with_external_features.csv"
+    output:
+        "data/interim/data_processed_categorical.csv"
+    shell:
+        "python -m src.features.process_categorical_features {input} {output}"
+# (PATH_DATA_ALL_FEATURES, PATH_DATA_ALL_CAT)
+
+rule add_external_features:
+    input:
+        "data/interim/data_added_features.csv",
+        "data/external/d_zipcodes_info.json"
+    output:
+        "data/interim/data_with_external_features.csv"
+    shell:
+        "python -m src.features.add_external_features {input} {output}"
+# (PATH_ALL_DATA_ADDED_FEATURES, PATH_ZIPCODES_INFO, PATH_DATA_ALL_FEATURES)
+
+rule modify_features:
+    input:
+        "data/interim/data_all_processed.csv"
+    output:
+        "data/interim/data_added_features.csv"
+    shell:
+        "python -m src.features.modify_features {input} {output}"
+# (PATH_ALL_DATA_PROCESSED, PATH_ALL_DATA_ADDED_FEATURES)
+
+rule get_external_data:
+    input:
+        "data/interim/data_all_processed.csv"
+    output:
+        "data/external/d_zipcodes_info.json"
+    shell:
+        "python -m src.data.get_external_data 1 {input} {output}"
+# (SCROLL_PAUSE_TIME, PATH_ALL_DATA_PROCESSED, PATH_ZIPCODES_INFO)
+
+rule preprocess_data:
+    input:
+        "data/interim/data_all.csv"
+    output:
+        "data/interim/data_all_processed.csv"
+    shell:
+        "python -m src.data.preprocess_data {input} {output}"
+# (PATH_ALL_DATA, PATH_ALL_DATA_PROCESSED)
+
+rule read_merge_data:
+    input:
+        "data/raw/x_train.csv",
+        "data/raw/x_test.csv",
+        "data/raw/y_train.csv"
+    output:
+        "data/interim/data_all.csv"
+    shell:
+        "python -m src.data.read_merge_data {input} {output}"
+# (INPUT_FILE_X_TRAIN, INPUT_FILE_X_TEST, INPUT_FILE_Y_TRAIN, PATH_ALL_DATA)
